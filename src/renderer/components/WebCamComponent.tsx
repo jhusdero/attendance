@@ -45,8 +45,6 @@ function WebCamComponent(props: IProps): ReactElement {
           screenshotFormat="image/jpeg"
           onUserMedia={(val) => {
             console.log(val);
-            console.log("yesss=====")
-            console.log(webcamRef)
           }}
           onUserMediaError={(err) => {
             console.log(err);

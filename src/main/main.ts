@@ -86,6 +86,7 @@ const createWindow = async () => {
         audioCapture: true,
         videoCapture: true,
       },
+      zoomFactor: 0.7,
     },
   });
   mainWindow.maximize();
