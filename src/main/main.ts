@@ -12,8 +12,18 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import fs from 'fs';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+type TUploadedFile = {
+  base64: string;
+  name: string;
+  folder: string;
+  filetype: string;
+};
+
+const uploadsFolder: string = path.join(app.getPath('appData'), 'uploads');
 
 class AppUpdater {
   constructor() {
@@ -31,10 +41,44 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+ipcMain.on('upload-file', async (event, arg) => {
+  console.log(`Uploading File ${arg?.name}`, typeof arg);
+  try {
+    const file: TUploadedFile = arg;
+    const { base64, name, folder, filetype } = file;
+    const base64Data: string = base64.split('base64,')[1];
+    const uploadsDir = path.join(__dirname, `uploads`);
+    const imagePath = path.join(
+      uploadsDir,
+      `${name}-${Date.now()}}.${filetype}`,
+    );
+
+    console.log('imagePath', imagePath);
+    await fs.promises.writeFile(imagePath, base64Data, 'base64');
+    event.reply('upload-file-done', imagePath);
+  } catch (e: any) {
+    console.log(e);
+    event.reply('upload-file-failed', e);
+  }
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
+
+// Ensure the uploads folder exists (optional)
+(async () => {
+  try {
+    await fs.promises.access(uploadsFolder);
+  } catch (err: any) {
+    if (err.code === 'ENOENT') {
+      await fs.promises.mkdir(uploadsFolder);
+    } else {
+      throw err;
+    }
+  }
+})();
 
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
@@ -78,15 +122,8 @@ const createWindow = async () => {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
-      enableRemoteModule: true,
-      webSecurity: false,
       allowRunningInsecureContent: true,
       autoplayPolicy: 'no-user-gesture-required',
-      mediaPermissions: {
-        audioCapture: true,
-        videoCapture: true,
-      },
-      zoomFactor: 0.7,
     },
   });
   mainWindow.maximize();
@@ -102,6 +139,9 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+    mainWindow.webContents.setZoomFactor(
+      process.platform === 'win32' ? 0.7 : 1,
+    );
   });
 
   mainWindow.on('closed', () => {

@@ -24,7 +24,7 @@ function Home(): ReactElement {
             sx={{
               width: 270,
               height: 140,
-              backgroundColor: '#cccccc',
+              backgroundColor: '#f4f4f5',
               '&:hover': {
                 backgroundColor: '#bfbfbf',
               },
@@ -43,7 +43,7 @@ function Home(): ReactElement {
             sx={{
               width: 270,
               height: 140,
-              backgroundColor: '#dddddd',
+              backgroundColor: '#f4f4f5',
               '&:hover': {
                 backgroundColor: '#cccccc',
               },

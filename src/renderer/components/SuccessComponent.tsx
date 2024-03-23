@@ -33,7 +33,7 @@ function SuccessComponent(props: IProps): ReactElement {
             <Typography variant="body2">Name:</Typography>
           </Grid2>
           <Grid2 sm={7} md={7}>
-            <Typography variant="h7" fontWeight="bold">
+            <Typography variant="body2" fontWeight="bold">
               {userInfo?.name || ''}
             </Typography>
           </Grid2>
@@ -43,7 +43,7 @@ function SuccessComponent(props: IProps): ReactElement {
             <Typography variant="body2">Code:</Typography>
           </Grid2>
           <Grid2 sm={7} md={7}>
-            <Typography variant="h7" fontWeight="bold">
+            <Typography variant="body2" fontWeight="bold">
               {userInfo?.code || ''}
             </Typography>
           </Grid2>
@@ -53,7 +53,7 @@ function SuccessComponent(props: IProps): ReactElement {
             <Typography variant="body2">Activity:</Typography>
           </Grid2>
           <Grid2 sm={7} md={7}>
-            <Typography variant="h7" fontWeight="bold">
+            <Typography variant="body2" fontWeight="bold">
               {action === 0 ? 'Check IN' : 'Check Out'}
             </Typography>
           </Grid2>
@@ -63,7 +63,7 @@ function SuccessComponent(props: IProps): ReactElement {
             <Typography variant="body2">Time:</Typography>
           </Grid2>
           <Grid2 sm={7} md={7}>
-            <Typography variant="h7" fontWeight="bold">
+            <Typography variant="body2" fontWeight="bold">
               {getCurrentDateTime()}
             </Typography>
           </Grid2>
@@ -143,7 +143,12 @@ function SuccessComponent(props: IProps): ReactElement {
           >
             <CardContent>
               <Grid2 pt={5} container display="flex" justifyContent="center">
-                <img src={image} alt="user-image" width={500} height={400} />
+                <img
+                  src={image}
+                  alt="user-action-img"
+                  width={500}
+                  height={400}
+                />
               </Grid2>
             </CardContent>
           </Card>
