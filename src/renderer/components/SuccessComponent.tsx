@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import {
   Accordion,
@@ -24,6 +24,30 @@ interface IProps {
 function SuccessComponent(props: IProps): ReactElement {
   const { image, userInfo, action } = props;
   const navigate: NavigateFunction = useNavigate();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const time: string = getCurrentDateTime();
+  const [labelledImage, setLabelledImage] = useState<string>('');
+
+  useEffect(() => {
+    const canvas = canvasRef?.current;
+    const img = imageRef?.current;
+    if (canvas && img) {
+      const ctx = canvas.getContext('2d');
+      if (ctx === null) {
+        return;
+      }
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+        ctx.font = '18px Courier';
+        ctx.fillStyle = 'red';
+        ctx.fillText(userInfo?.name || '', 10, 30);
+        ctx.fillText(time, 10, 50);
+
+        setLabelledImage(canvas.toDataURL());
+      };
+    }
+  }, []);
 
   const renderUserDetails = (): ReactElement => {
     return (
@@ -64,7 +88,7 @@ function SuccessComponent(props: IProps): ReactElement {
           </Grid2>
           <Grid2 sm={7} md={7}>
             <Typography variant="body2" fontWeight="bold">
-              {getCurrentDateTime()}
+              {time}
             </Typography>
           </Grid2>
         </Grid2>
@@ -143,11 +167,12 @@ function SuccessComponent(props: IProps): ReactElement {
           >
             <CardContent>
               <Grid2 pt={5} container display="flex" justifyContent="center">
+                <canvas ref={canvasRef} width={500} height={400} />
                 <img
+                  ref={imageRef}
                   src={image}
                   alt="user-action-img"
-                  width={500}
-                  height={400}
+                  style={{ display: 'none' }}
                 />
               </Grid2>
             </CardContent>
