@@ -266,6 +266,7 @@
   "electronmon": {
     "patterns": [
       "!**/**",
+      "!src/main/uploads/**",
       "src/main/**"
     ],
     "logLevel": "quiet"

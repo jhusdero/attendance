@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Home from './screens/Home';
 import CheckInOut from './screens/CheckInOut';
 import AppBarHeader from './components/AppBarHeader';
-import Footer from "./components/Footer";
+import Footer from './components/Footer';
 
 export default function App() {
   return (
