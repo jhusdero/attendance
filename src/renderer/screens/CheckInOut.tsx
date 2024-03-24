@@ -1,46 +1,16 @@
 import React, { ReactElement, useState } from 'react';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { Alert, Box, Typography } from '@mui/material';
-import { ICheckInOutProps, IError, IFile, IReason, IUser } from '../types';
+import { useLocation } from 'react-router-dom';
+import { ICheckInOutProps, IError, IFile, IUser } from '../types';
 import WebCamComponent from '../components/WebCamComponent';
 import Confirmation from '../components/Confirmation';
 import UserAccordion from '../components/UserAccordion';
 
-const EMPLOYEES: IUser[] = [
-  {
-    name: 'Derrick Mugenyi',
-    code: 'E001',
-    department: 'RnD',
-    lastAction: 0,
-    lastActionTime: '2024-03-10 10:00',
-  },
-  {
-    name: 'Trevor Suna',
-    code: 'E002',
-    department: 'RnD',
-    lastAction: 0,
-    lastActionTime: '2024-03-10 10:00',
-  },
-];
-
-const CHECKOUT_REASONS: IReason[] = [
-  {
-    value: 1,
-    label: 'Sulat',
-  },
-  {
-    value: 2,
-    label: 'Lunch',
-  },
-  {
-    value: 3,
-    label: 'Meeting',
-  },
-];
-
 function CheckInOut(props: ICheckInOutProps): ReactElement {
   const { action } = props;
-  const [users, setUsers] = useState<IUser[] | undefined>(EMPLOYEES);
+  const { state } = useLocation();
+  const { users, reasons } = state;
   const [selectedUser, setSelectedUser] = useState<IUser | undefined>(
     undefined,
   );
@@ -123,7 +93,7 @@ function CheckInOut(props: ICheckInOutProps): ReactElement {
         justifyContent="center"
         spacing={3}
       >
-        {users?.map((i, v) => {
+        {users?.map((i: IUser, v: number) => {
           return (
             <UserAccordion
               key={i?.code}
@@ -138,10 +108,10 @@ function CheckInOut(props: ICheckInOutProps): ReactElement {
                 }
               }}
               onSelect={() => {
-                setSelectedUser(EMPLOYEES[v]);
+                setSelectedUser(users[v]);
                 return setActivateWebCam(true);
               }}
-              reasons={action === 1 ? CHECKOUT_REASONS : undefined}
+              reasons={action === 1 ? reasons : undefined}
               selectedReason={selectedReason}
               onReasonSelect={(val) => setSelectedReason(val)}
               remarks={remarks}

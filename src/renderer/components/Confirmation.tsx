@@ -9,6 +9,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,7 +19,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
-import { IError, IUser } from '../types';
+import { IError, IDRequest, IUser } from '../types';
 import { getCurrentDateTime } from '../utils';
 
 interface IProps {
@@ -68,13 +69,18 @@ function Confirmation(props: IProps): ReactElement {
       if (error.error) {
         setError({ error: false, message: '' });
       }
+      const data: IDRequest = {
+        method: 'CREATE',
+        type: 'ACTIVITY',
+        data: {
+          user: userInfo,
+          action,
+          image: labelledImage,
+          remarks,
+        },
+      };
       // initiate to send to backend
-      window.electron.ipcRenderer.sendMessage('send-to-backend', {
-        user: userInfo,
-        action,
-        image: labelledImage,
-        remarks,
-      });
+      window.electron.ipcRenderer.sendMessage('send-to-backend', data);
 
       // success
       window.electron.ipcRenderer.on('send-to-backend-done', (args) => {
@@ -278,6 +284,13 @@ function Confirmation(props: IProps): ReactElement {
                     variant="contained"
                     onClick={() => processData()}
                   >
+                    {loading && (
+                      <CircularProgress
+                        color="inherit"
+                        size={20}
+                        sx={{ mr: 2 }}
+                      />
+                    )}
                     {loading ? 'Processing ...' : 'Submit'}
                   </Button>
                 </Grid2>

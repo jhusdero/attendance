@@ -9,6 +9,7 @@ import {
   IconButton,
   TextField,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PersonSharpIcon from '@mui/icons-material/PersonSharp';
@@ -147,6 +148,11 @@ function UserAccordion(props: IProps): ReactElement {
               ) : (
                 <CloudUploadIcon />
               )
+            }
+            endIcon={
+              selectedUserIndex === index && upLoading ? (
+                <CircularProgress color="inherit" size={20} sx={{ mr: 2 }} />
+              ) : null
             }
           >
             {selectedUserIndex === index
