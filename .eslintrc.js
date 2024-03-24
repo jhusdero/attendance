@@ -17,6 +17,7 @@ module.exports = {
     'global-require': 'off',
     'no-prototype-builtins': 'off',
     'no-nested-ternary': 'off',
+    'no-console': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,
