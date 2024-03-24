@@ -4,30 +4,43 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Typography,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
-import { IUser } from '../types';
+import { IError, IUser } from '../types';
 import { getCurrentDateTime } from '../utils';
 
 interface IProps {
   image: string;
   userInfo: IUser | undefined;
   action: number;
+  remarks?: string;
 }
 
-function SuccessComponent(props: IProps): ReactElement {
-  const { image, userInfo, action } = props;
+function Confirmation(props: IProps): ReactElement {
+  const { image, userInfo, action, remarks } = props;
   const navigate: NavigateFunction = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const time: string = getCurrentDateTime();
   const [labelledImage, setLabelledImage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<IError>({
+    error: false,
+    message: '',
+  });
+  const [success, setSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     const canvas = canvasRef?.current;
@@ -48,6 +61,47 @@ function SuccessComponent(props: IProps): ReactElement {
       };
     }
   }, []);
+
+  const processData = (): void => {
+    try {
+      setLoading(true);
+      if (error.error) {
+        setError({ error: false, message: '' });
+      }
+      // initiate to send to backend
+      window.electron.ipcRenderer.sendMessage('send-to-backend', {
+        user: userInfo,
+        action,
+        image: labelledImage,
+        remarks,
+      });
+
+      // success
+      window.electron.ipcRenderer.on('send-to-backend-done', (args) => {
+        console.log(`Done:  ${args}`);
+        setLoading(false);
+        return setSuccess(true);
+      });
+
+      // failed
+      window.electron.ipcRenderer.on('send-to-backend-failed', (args) => {
+        setLoading(false);
+        return setError({
+          error: true,
+          message: `Error processing data: ${args}`,
+        });
+      });
+    } catch (e) {
+      console.log(e);
+      if (loading) {
+        setLoading(false);
+      }
+      setError({
+        error: true,
+        message: `Oops something went wrong. ${e}`,
+      });
+    }
+  };
 
   const renderUserDetails = (): ReactElement => {
     return (
@@ -92,7 +146,42 @@ function SuccessComponent(props: IProps): ReactElement {
             </Typography>
           </Grid2>
         </Grid2>
+        <Grid2 container p={1}>
+          <Grid2 sm={5} md={5}>
+            <Typography variant="body2">Remarks:</Typography>
+          </Grid2>
+          <Grid2 sm={7} md={7}>
+            <Typography variant="body2" fontWeight="bold">
+              {remarks}
+            </Typography>
+          </Grid2>
+        </Grid2>
       </>
+    );
+  };
+
+  const renderSuccessModal = (): ReactElement => {
+    return (
+      <Dialog
+        open={success}
+        onClose={() => navigate('/')}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          <b>Successful</b>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Hey <b>{userInfo?.name || ''}</b> you have{' '}
+            {action === 0 ? 'Checked IN ' : 'Checked OUT '}
+            at <b>{time}</b>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => navigate('/')}>Done</Button>
+        </DialogActions>
+      </Dialog>
     );
   };
 
@@ -107,21 +196,23 @@ function SuccessComponent(props: IProps): ReactElement {
             }}
           >
             <CardContent>
-              <Grid2 pt={5} container display="flex" justifyContent="center">
+              <Grid2 container display="flex" justifyContent="center">
                 <Grid2
                   sm={12}
                   md={12}
                   justifyContent="center"
                   display="flex"
-                  mb={5}
+                  mb={1}
                 >
                   <img
-                    src={require('../../assets/img/success.png')}
+                    src={require('../../assets/img/attendance.png')}
                     alt="success"
                     width={80}
                     height={80}
                   />
                 </Grid2>
+              </Grid2>
+              <Grid2 container>
                 <Grid2 sm={12} md={12} mb={10}>
                   <Accordion defaultExpanded>
                     <AccordionSummary
@@ -145,13 +236,49 @@ function SuccessComponent(props: IProps): ReactElement {
                     </AccordionDetails>
                   </Accordion>
                 </Grid2>
-                <Grid2 container display="flex" justifyContent="center">
+              </Grid2>
+              {error.error ? (
+                <Grid2
+                  container
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  mb={3}
+                >
+                  <Grid2 sm={12} md={12}>
+                    <Alert
+                      severity="error"
+                      onClose={() => setError({ error: false, message: '' })}
+                    >
+                      {error.message || ''}
+                    </Alert>
+                  </Grid2>
+                </Grid2>
+              ) : null}
+              <Grid2
+                container
+                display="flex"
+                justifyContent="center"
+                spacing={2}
+                alignItems="center"
+              >
+                <Grid2>
                   <Button
+                    color="error"
+                    variant="contained"
+                    onClick={() => navigate(-1)}
+                  >
+                    Cancel
+                  </Button>
+                </Grid2>
+                <Grid2>
+                  <Button
+                    disabled={loading}
                     color="success"
                     variant="contained"
-                    onClick={() => navigate('/')}
+                    onClick={() => processData()}
                   >
-                    DONE
+                    {loading ? 'Processing ...' : 'Submit'}
                   </Button>
                 </Grid2>
               </Grid2>
@@ -166,7 +293,13 @@ function SuccessComponent(props: IProps): ReactElement {
             }}
           >
             <CardContent>
-              <Grid2 pt={5} container display="flex" justifyContent="center">
+              <Grid2
+                pt={5}
+                container
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <canvas ref={canvasRef} width={500} height={400} />
                 <img
                   ref={imageRef}
@@ -179,8 +312,9 @@ function SuccessComponent(props: IProps): ReactElement {
           </Card>
         </Grid2>
       </Grid2>
+      {renderSuccessModal()}
     </Box>
   );
 }
 
-export default SuccessComponent;
+export default Confirmation;

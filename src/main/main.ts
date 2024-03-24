@@ -41,11 +41,12 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+// Fail upload
 ipcMain.on('upload-file', async (event, arg) => {
   console.log(`Uploading File ${arg?.name}`, typeof arg);
   try {
     const file: TUploadedFile = arg;
-    const { base64, name, folder, filetype } = file;
+    const { base64, name, filetype } = file;
     const base64Data: string = base64.split('base64,')[1];
     const uploadsDir = path.join(__dirname, `uploads`);
     const imagePath = path.join(
@@ -59,6 +60,17 @@ ipcMain.on('upload-file', async (event, arg) => {
   } catch (e: any) {
     console.log(e);
     event.reply('upload-file-failed', e);
+  }
+});
+
+ipcMain.on('send-to-backend', async (event, arg) => {
+  try {
+    setTimeout(() => {
+      event.reply('send-to-backend-done', { code: 0, message: 'done' });
+    }, 2000);
+  } catch (e: any) {
+    console.log(e);
+    event.reply('send-to-backend-failed', `Failed to upload to database: ${e}`);
   }
 });
 
