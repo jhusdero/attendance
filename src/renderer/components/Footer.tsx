@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
-import Grid2 from '@mui/material/Unstable_Grid2';
+import { Box, Toolbar, Typography } from '@mui/material';
 
 type TLink = {
   id: number;
@@ -28,38 +27,40 @@ const LINKS: TLink[] = [
 function Footer() {
   return (
     <Box sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
-      <Card>
-        <CardContent>
-          <Grid2
-            container
-            elevation={2}
-            spacing={10}
-            justifyContent="center"
-            alignItems="center"
-          >
-            {LINKS.map((i) => {
-              return (
-                <Grid2 key={i.id}>
-                  <Typography
-                    variant="body1"
-                    color="#000"
-                    sx={{
-                      '&:hover': {
-                        cursor: 'pointer',
-                        textDecorationLine: 'underline',
-                      },
-                      fontWeight: 500,
-                    }}
-                    onClick={() => window.open(i.url || '', 'modal')}
-                  >
-                    {i.name || ''}
-                  </Typography>
-                </Grid2>
-              );
-            })}
-          </Grid2>
-        </CardContent>
-      </Card>
+      <Toolbar>
+        <Box
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            flexGrow: 1,
+            display: { xs: 'none', md: 'flex' },
+          }}
+        >
+          {LINKS.map((i) => {
+            return (
+              <Typography
+                key={i?.id}
+                variant="body1"
+                color="#000"
+                sx={{
+                  '&:hover': {
+                    cursor: 'pointer',
+                    textDecorationLine: 'underline',
+                  },
+                  mx: 5,
+                  fontWeight: 500,
+                }}
+                onClick={() => window.open(i.url || '', 'modal')}
+              >
+                {i.name || ''}
+              </Typography>
+            );
+          })}
+        </Box>
+        <Box sx={{ flexGrow: 0 }}>
+          <Typography>v 0.0.1</Typography>
+        </Box>
+      </Toolbar>
     </Box>
   );
 }

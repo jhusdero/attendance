@@ -15,6 +15,11 @@ export interface IReason {
   value: number;
 }
 
+export interface IAppData {
+  users: IUser[] | undefined;
+  reasons: IReason[] | undefined;
+}
+
 export interface IFile {
   file: File | undefined;
   url: string | undefined;
@@ -23,4 +28,16 @@ export interface IFile {
 export interface IError {
   error: boolean;
   message: string;
+}
+
+export interface IDRequest {
+  method: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
+  type?: 'USERS' | 'ACTIVITY';
+  data?: any;
+}
+
+export interface IDResponse {
+  code: number | string;
+  message: string;
+  data: any;
 }

@@ -17,6 +17,7 @@ function WebCamComponent(props: IProps): ReactElement {
   const webcamRef = useRef<Webcam>(null);
   const [error, setError] = useState<string | undefined>(undefined);
   const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
+  const [showButtons, setShowButtons] = useState<boolean>(false);
 
   const takeImage = () => {
     const imageSrc = webcamRef?.current?.getScreenshot();
@@ -115,8 +116,8 @@ function WebCamComponent(props: IProps): ReactElement {
             audio={false}
             ref={webcamRef}
             screenshotFormat="image/jpeg"
-            onUserMedia={(val) => {
-              console.log(val);
+            onUserMedia={() => {
+              setShowButtons(true);
             }}
             onUserMediaError={(err) => {
               console.log(err);
@@ -125,7 +126,7 @@ function WebCamComponent(props: IProps): ReactElement {
           />
         )}
       </Box>
-      {renderActionButtons()}
+      {showButtons ? renderActionButtons() : null}
     </Box>
   );
 }

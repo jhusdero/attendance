@@ -15,6 +15,7 @@ import log from 'electron-log';
 import fs from 'fs';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { IDRequest, IDResponse } from '../renderer/types';
 
 type TUploadedFile = {
   base64: string;
@@ -65,12 +66,66 @@ ipcMain.on('upload-file', async (event, arg) => {
 
 ipcMain.on('send-to-backend', async (event, arg) => {
   try {
+    const reqData: IDRequest = arg;
+    const { method, type, data } = reqData;
+    let results: IDResponse | any = { code: -1, message: '' };
+    if (type === 'USERS') {
+      if (method === 'READ') {
+        results = {
+          code: 0,
+          data: {
+            users: [
+              {
+                name: 'Derrick Mugenyi',
+                code: 'E001',
+                department: 'RnD',
+                lastAction: 0,
+                lastActionTime: '2024-03-10 10:00',
+              },
+              {
+                name: 'Trevor Suna',
+                code: 'E002',
+                department: 'RnD',
+                lastAction: 0,
+                lastActionTime: '2024-03-10 10:00',
+              },
+            ],
+            reasons: [
+              {
+                value: 1,
+                label: 'Sulat',
+              },
+              {
+                value: 2,
+                label: 'Lunch',
+              },
+              {
+                value: 3,
+                label: 'Meeting',
+              },
+            ],
+          },
+          message: 'ok',
+        };
+      }
+    } else if (type === 'ACTIVITY') {
+      if (method === 'CREATE') {
+        results = {
+          code: 0,
+          message: 'ok',
+        };
+      }
+    }
+
     setTimeout(() => {
-      event.reply('send-to-backend-done', { code: 0, message: 'done' });
-    }, 2000);
+      event.reply('send-to-backend-done', results);
+    }, 1000);
   } catch (e: any) {
     console.log(e);
-    event.reply('send-to-backend-failed', `Failed to upload to database: ${e}`);
+    event.reply('send-to-backend-failed', {
+      code: -99,
+      message: `Failed to upload to database: ${e}`,
+    });
   }
 });
 
@@ -136,6 +191,7 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
       allowRunningInsecureContent: true,
       autoplayPolicy: 'no-user-gesture-required',
+      zoomFactor: 0.7,
     },
   });
   mainWindow.maximize();
