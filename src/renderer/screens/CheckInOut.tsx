@@ -3,7 +3,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import { Alert, Box, Typography } from '@mui/material';
 import { ICheckInOutProps, IError, IFile, IReason, IUser } from '../types';
 import WebCamComponent from '../components/WebCamComponent';
-import SuccessComponent from '../components/SuccessComponent';
+import Confirmation from '../components/Confirmation';
 import UserAccordion from '../components/UserAccordion';
 
 const EMPLOYEES: IUser[] = [
@@ -81,7 +81,12 @@ function CheckInOut(props: ICheckInOutProps): ReactElement {
 
   if (image) {
     return (
-      <SuccessComponent image={image} userInfo={selectedUser} action={action} />
+      <Confirmation
+        image={image}
+        userInfo={selectedUser}
+        action={action}
+        remarks={remarks}
+      />
     );
   }
 
